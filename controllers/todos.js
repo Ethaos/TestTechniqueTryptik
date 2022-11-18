@@ -7,11 +7,6 @@ const db = new sqlite3.Database('TestTryptik.db', sqlite3.OPEN_READWRITE, (err) 
     console.log('connection successful');
 });
 
-/*const todos = [
-    { uuid: '00000000-0000-0000-0000-000000000000', label: 'Faire mon repository', done: false },
-    { uuid: '00000000-0000-0000-0000-000000000001', label: 'Faire mon repository2', done: true }
-]*/
-
 export const getTodos = function (req, res) {
     const query = "SELECT * FROM Todos";
     const todos = [];
