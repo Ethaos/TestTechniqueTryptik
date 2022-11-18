@@ -1,5 +1,11 @@
 import { v4 as uuidV4 } from "uuid";
-import { getTodosDB, getTodosByIdDB, createTodosDB, updateTodosDB } from "../database.js"
+import sqlite3 from "sqlite3";
+
+const db = new sqlite3.Database('TestTryptik.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) return console.error(err.message);
+
+    console.log('connection successful');
+});
 
 /*const todos = [
     { uuid: '00000000-0000-0000-0000-000000000000', label: 'Faire mon repository', done: false },
@@ -7,16 +13,28 @@ import { getTodosDB, getTodosByIdDB, createTodosDB, updateTodosDB } from "../dat
 ]*/
 
 export const getTodos = function (req, res) {
-    let results = getTodosDB();
-    res.json(results);
-    /*res.json(todos);*/
+    const query = "SELECT * FROM Todos";
+    const todos = [];
+
+    db.each(query, todos, (err, rows) => {
+        if (err) return console.log(err.message);
+        res.json({
+            "message": "Succes",
+            "data": rows
+        })
+    });
 }
 
 export const getTodosById = function (req, res) {
+    const query = "SELECT * FROM Todos WHERE uuid = ?";
     const todoId = req.params.uuid;
-    let results = getTodosByIdDB(todoId);
-    res.json(results);
-    /*res.json(todos);*/
+    db.get(query, [todoId], (err, row) => {
+        if (err) return console.log(err.message);
+        res.json({
+            "message": "Succes",
+            "data": row
+        })
+    })
 }
 
 export const createTodos = function (req, res) {
@@ -28,16 +46,14 @@ export const createTodos = function (req, res) {
         done: done
     }
 
-    let results = createTodosDB(todoAdd);
-    res.json(results);
-
-    /*todos.push({
-        uuid: uuidV4(),
-        label: label,
-        done: done
-    });
-
-    res.json(todos);*/
+    const query = "INSERT INTO Todos (uuid, label, done) values (?,?,?)";
+    db.run(query, [todoAdd.uuid, todoAdd.label, todoAdd.done], (err, row) => {
+        if (err) return console.log(err.message);
+        res.json({
+            "message": "Succes",
+            "data": todoAdd
+        })
+    })
 }
 
 export const updateTodos = function (req, res) {
@@ -50,19 +66,14 @@ export const updateTodos = function (req, res) {
         done: done
     }
 
-    let results = updateTodosDB(todoUpdate);
-    res.json(results);
-
-    /*const todo = todos.map(function (todo) {
-        if (todo.uuid === todoId) {
-            return {
-                uuid: todo.uuid,
-                label: label,
-                done: done
-            }
-        }
-        return todo;
+    const query = "UPDATE Todos SET label = ?, done = ? WHERE uuid = ?";
+    const todo = {};
+    db.run(query, [todoUpdate.label, todoUpdate.done, todoUpdate.uuid], (err, row) => {
+        if (err) return console.log(err.message);
+        res.json({
+            "message": "Succes",
+            "data": todoUpdate
+        })
     })
-    res.json(todo);*/
 }
 
