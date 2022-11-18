@@ -7,7 +7,6 @@ app.use(bodyParser.json())
 
 app.use('/api/v1', todosRouter);
 
-
 app.listen(3000, function () {
     console.log("Hey server is running on port 3000")
 })
